@@ -189,6 +189,36 @@ app.get("/get-all-notes", authenticateToken, async (req, res) => {
     }
 });
 
+// Delete Note
+app.delete("/delete-note/:noteId", authenticateToken, async (req, res) => {
+    const noteId = req.params.noteId;
+    const user = req.user;
+
+    if (!noteId) {
+        return res.status(400).json({ error: true, message: "Note ID is required" });
+    }
+
+    if (!user || !user._id) {
+        return res.status(401).json({ error: true, message: "User not authenticated" });
+    }
+
+    try {
+        // Find the note to ensure it belongs to the authenticated user
+        const note = await Note.findOne({ _id: noteId, userId: user._id });
+        if (!note) {
+            return res.status(404).json({ error: true, message: "Note not found" });
+        }
+
+        // Delete the note
+        await Note.deleteOne({ _id: noteId, userId: user._id });
+
+        return res.json({ error: false, message: "Note deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting note:", error);
+        return res.status(500).json({ error: true, message: "Something went wrong" });
+    }
+});
+
 
 
 
