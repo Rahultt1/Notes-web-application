@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import NoteCard from '../../components/Cards/NoteCard';
 import { MdAdd } from 'react-icons/md';
 import AddEditNotes from './AddEditNotes';
 import Modal from 'react-modal';
+import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../Utils/axiosInstance'; // Ensure axiosInstance is imported
 
 const Home = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState({
@@ -12,9 +14,33 @@ const Home = () => {
     data: null,
   });
 
+  const [userInfo, setUserInfo] = useState(null); // Fix destructuring of useState
+  const navigate = useNavigate();
+
+  // Get user info
+  const getUserInfo = async () => {
+    try {
+      const response = await axiosInstance.get('/get-user');
+      if (response.data && response.data.user) {
+        setUserInfo(response.data.user); // Corrected state setter
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        localStorage.clear();
+        navigate('/login');
+      }
+    }
+  };
+
+  useEffect(() => {
+    getUserInfo();
+    return () => {};
+  }, []);
+
   return (
     <>
-      <Navbar />
+      {/* Pass userInfo as a prop to Navbar */}
+      <Navbar userInfo={userInfo} />
       <div className="container ml-7">
         <div className="grid grid-cols-4 gap-4 mt-8">
           <NoteCard
@@ -43,20 +69,28 @@ const Home = () => {
       </button>
       <Modal
         isOpen={openAddEditModal.isShown}
-        onRequestClose={() => {}}
-      
+        onRequestClose={() =>
+          setOpenAddEditModal({
+            isShown: false,
+            type: 'add',
+            data: null,
+          })
+        }
         style={{
           overlay: {
             backgroundColor: 'rgba(0, 0, 0, 0.2)',
-          },  
+          },
         }}
         contentLabel=""
-        className="w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5 overflow-hidden " // Add a custom class for styling if needed
+        className="w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5 overflow-hidden "
       >
         <AddEditNotes
-        type={openAddEditModal.type}
-        noteData = {openAddEditModal.data}
-        onClose={() => setOpenAddEditModal({ isShown: false, type: 'add', data: null })}/>
+          type={openAddEditModal.type}
+          noteData={openAddEditModal.data}
+          onClose={() =>
+            setOpenAddEditModal({ isShown: false, type: 'add', data: null })
+          }
+        />
       </Modal>
     </>
   );
