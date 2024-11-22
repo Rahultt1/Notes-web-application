@@ -160,6 +160,34 @@ app.put("/edit-note/:noteId", authenticateToken, async (req, res) => {
 });
 
 //Get all notes
+app.get("/get-all-notes", authenticateToken, async (req, res) => {
+    try {
+        // Check if user is properly set by the authenticateToken middleware
+        const user = req.user;
+
+        if (!user || !user._id) {
+            return res.status(401).json({
+                error: true,
+                message: "User not authenticated",
+            });
+        }
+
+        // Fetch all notes for the authenticated user
+        const notes = await Note.find({ userId: user._id });
+
+        return res.json({
+            error: false,
+            notes,
+            message: "Notes fetched successfully",
+        });
+    } catch (error) {
+        console.error("Error fetching notes:", error);
+        return res.status(500).json({
+            error: true,
+            message: "Something went wrong",
+        });
+    }
+});
 
 
 
