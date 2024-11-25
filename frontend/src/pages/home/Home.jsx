@@ -6,7 +6,7 @@ import AddEditNotes from './AddEditNotes';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../Utils/axiosInstance'; // Ensure axiosInstance is imported
-
+import moment from 'moment';
 const Home = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -14,6 +14,7 @@ const Home = () => {
     data: null,
   });
 
+  const [allNotes, setAllNotes] = useState([]);
   const [userInfo, setUserInfo] = useState(null); // Fix destructuring of useState
   const navigate = useNavigate();
 
@@ -32,10 +33,26 @@ const Home = () => {
     }
   };
 
+ 
+  //Get All notes 
+  const getAllNotes = async () => {
+    try {
+      const response = await axiosInstance.get('/get-all-notes');
+      if (response.data && response.data.notes) {
+        setAllNotes(response.data.notes); // Corrected state setter
+      }
+    } catch (error) {
+      console.log("Unexpected Error Occurred");
+    }
+  }; // Removed the extra closing bracket here
+  
+
+
   useEffect(() => {
     getUserInfo();
-    return () => {};
-  }, []);
+    getAllNotes(); // Call the function to fetch all notes
+  }, []); 
+  
 
   return (
     <>
@@ -43,16 +60,21 @@ const Home = () => {
       <Navbar userInfo={userInfo} />
       <div className="container ml-7">
         <div className="grid grid-cols-4 gap-4 mt-8">
-          <NoteCard
-            title="Meeting With Rahul"
-            date="12-12-2023"
-            content="Meeting at Shangrilla Hotel in 3rd October"
-            tags="Meeting"
-            isPined={true}
+          {allNotes.map((item,index) => (
+            <NoteCard
+            key={item._id}
+            title={item.title}
+            date={item.createdOn}
+            content={item.content}
+            tags={item.tags}
+            isPined={item.isPined}
             onEdit={() => {}}
             onDelete={() => {}}
             onPinNote={() => {}}
           />
+            
+         ))}
+          
         </div>
       </div>
       <button
