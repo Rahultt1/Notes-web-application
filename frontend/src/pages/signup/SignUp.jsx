@@ -1,13 +1,15 @@
 import React from 'react'
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
 import PasswordInput from '../../components/Input/PasswordInput';
 import { validateEmail } from '../../Utils/helper';
 import Navbar from '../../components/Navbar/Navbar'
+import axiosInstance from '../../Utils/axiosInstance';
+
 
 const SignUp = () => {
-
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -34,6 +36,30 @@ const SignUp = () => {
     setError("");
     
     //Sign Up API Call
+
+    try {
+      const response = await axiosInstance.post("/create-account", {
+        fullName: name,
+        email: email,
+        password: password,
+      });
+      //handle successfull registration response
+      
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        navigate('/login'); // Redirect user to login page after successful signup
+    } else if (response.data && response.data.message) {
+        setError(response.data.message); // Handle any additional server messages
+    }
+    
+
+  }catch (error) {
+    
+    if(error.response && error.response.data && error.response.data.message) {
+      setError(error.response.data.message);
+    }else{
+      setError("Unexpected Error Occured Please Try Again");}
+  }
 
      
    }

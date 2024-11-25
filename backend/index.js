@@ -63,7 +63,7 @@ app.post("/create-account", async (req, res) => {
         const user = new User({ fullName, email, password });
         await user.save();
 
-        const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+        const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1000h" });
         return res.json({ error: false, user, accessToken, message: "User created successfully" });
     } catch (error) {
         console.error("Error creating account:", error);
