@@ -1,37 +1,18 @@
-# MERN Notes Application 📝
+## Deployment on Google Cloud Run
 
-This is a **web application** built using the **MERN stack (MongoDB, Express, React, Node.js)** with **Tailwind CSS** for styling.
-The application allows users to create, view, edit, and manage their notes efficiently. Users can also pin important notes for quick access.
+1. **Build the Docker image**:
+   ```bash
+   docker build -t gcr.io/<your-project-id>/note-app .
+   ```
 
----
+2. **Push the Docker image to Google Container Registry**:
+   ```bash
+   docker push gcr.io/<your-project-id>/note-app
+   ```
 
-## Features 🚀
-- **User Authentication**:
-  - Users can create an account and log in securely.
-- **Create Notes**:
-  - Users can add new notes with a title, content, and optional tags.
-- **View Notes**:
-  - All notes are displayed in a clean, organized view.
-- **Edit Notes**:
-  - Users can update their notes anytime.
-- **Pin Notes**:
-  - Users can pin important notes for easy reference.
-- **Responsive Design**:
-  - Optimized for various screen sizes with a sleek and modern UI.
+3. **Deploy the image to Google Cloud Run**:
+   ```bash
+   gcloud run deploy note-app --image gcr.io/<your-project-id>/note-app --platform managed --region <your-region> --allow-unauthenticated
+   ```
 
----
-
-## Tech Stack 🛠️
-- **Frontend**: React.js, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB
-- **Authentication**: JSON Web Tokens (JWT)
-
----
-
-## Installation and Setup 💻
-
-### Prerequisites
-- Node.js installed on your system
-- MongoDB connection URL
-- A `.env` file with the following:
+4. **Test the deployed application** by visiting the URL provided after deployment.

@@ -4,20 +4,20 @@ FROM node:16
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if you have one)
-COPY package*.json ./
+# Copy package.json and package-lock.json from the backend directory
+COPY backend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
+# Copy the backend directory into the container
+COPY backend ./backend
+
 # Copy the rest of your application code
 COPY . .
 
-# Build your React app (assuming you use `npm run build`)
-RUN npm run build
-
 # Define the port your app listens on
-EXPOSE 3000
+EXPOSE $PORT
 
 # Start your Node.js server
-CMD [ "npm", "start" ]
+CMD [ "node", "backend/index.js" ]
